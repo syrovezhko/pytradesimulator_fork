@@ -8,19 +8,19 @@ ORDERS = {}
 
 class BaseApplication(fix.Application):
     def onCreate(self, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onCreate in work')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onCreate in work')
         return
 
     def onLogon(self, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onLogon in work')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onLogon in work')
         return
 
     def onLogout(self, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onLogout in work')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onLogout in work')
         return
 
     def toAdmin(self, message, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', message.replace("\x01", "|"), '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', message, '\n ======================================================')
         self.sessionID = sessionID
         return
 
@@ -29,11 +29,11 @@ class BaseApplication(fix.Application):
         return
 
     def toApp(self, message, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toApp message: ', message.replace("\x01", "|"), '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toApp message: ', message, '\n ======================================================')
         return
 
     def fromApp(self, message, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromApp message: ', message.replace("\x01", "|"), '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromApp message: ', message, '\n ======================================================')
         return
 
 
@@ -198,18 +198,12 @@ def new_quote_request(
     header.setField(fix.SenderCompID(sender_comp_id))
     header.setField(fix.TargetCompID(target_comp_id))
     header.setField(fix.MsgType("R"))
-    ord_id = get_order_id(sender_comp_id, symbol)
-    message.setField(fix.ClOrdID(ord_id))
     message.setField(fix.Symbol(symbol)) # +++++++
     message.setField(fix.Side(side)) #+++++++++++
     message.setField(fix.ClientID('1')) # +++++++++ сделать одинаковым для всех
-    if order_type.lower() == "market":
-        message.setField(fix.OrdType(fix.OrdType_MARKET))
-    else:
-        message.setField(fix.OrdType(fix.OrdType_LIMIT)) 
-    message.setField(fix.HandlInst(fix.HandlInst_MANUAL_ORDER_BEST_EXECUTION))
-    message.setField(fix.TransactTime())
-    message.setField(fix.QuoteID('1')) #=================
+    message.setField(fix.OrderQty(float(quantity))) #from replace_order
+    message.setField(fix.NoRelatedSym(4)) # ?????????????
+    message.setField(fix.QuoteReqID('1')) # Мой id
 
     return message
 
