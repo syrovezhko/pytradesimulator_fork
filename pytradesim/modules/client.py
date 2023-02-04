@@ -122,6 +122,26 @@ class Client(BaseApplication):
                     f"Order: {exec_id}, {client_order_id} {symbol}"
                     f" {quantity}@{price} {side}"
                 )
+        
+    def getQuote(self, message, sessionID):
+        self.logger.debug("getQuote message.")
+        quote_req_id = fix.QuoteReqID()
+        quote_id = fix.QuoteID()
+        symbol = fix.Symbol()
+        offer_size = fix.OfferSize()
+        offer_px = fix.OfferPx()
+        id_source = fix.IDSource()
+        security_id = fix.SecurityID()
+
+        message.getField(quote_req_id)
+        message.getField(quote_id)
+        message.getField(symbol)
+        message.getField(offer_size)
+        message.getField(offer_px)
+        message.getField(id_source)
+        message.getField(security_id)
+
+        return (quote_req_id, quote_id, symbol, offer_size, offer_px, id_source, security_id)
 
     def __get_attributes(self, message):
         price = fix.LastPx()
@@ -156,7 +176,7 @@ def get_order_id(sender_comp_id, symbol):
 
 
 def new_order(
-    sender_comp_id, target_comp_id, symbol, quantity, price, side, order_type
+    sender_comp_id, target_comp_id, symbol, quantity, price, side, order_type, quote_id
 ):
     if side.lower() == "buy":
         side = fix.Side_BUY
@@ -180,7 +200,7 @@ def new_order(
         message.setField(fix.OrdType(fix.OrdType_LIMIT)) 
     message.setField(fix.HandlInst(fix.HandlInst_MANUAL_ORDER_BEST_EXECUTION))
     message.setField(fix.TransactTime())
-    message.setField(fix.QuoteID('1')) #=================
+    message.setField(fix.QuoteID(quote_id)) #=================
 
     return message
 
