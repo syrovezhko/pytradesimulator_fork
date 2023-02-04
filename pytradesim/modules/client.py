@@ -8,25 +8,32 @@ ORDERS = {}
 
 class BaseApplication(fix.Application):
     def onCreate(self, sessionID):
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onCreate in work')
         return
 
     def onLogon(self, sessionID):
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onLogon in work')
         return
 
     def onLogout(self, sessionID):
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onLogout in work')
         return
 
     def toAdmin(self, message, sessionID):
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', message.replace("\x01", "|"), '\n ======================================================')
         self.sessionID = sessionID
         return
 
     def fromAdmin(self, message, sessionID):
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromAdmin message: ', message, '\n ======================================================')
         return
 
     def toApp(self, message, sessionID):
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toApp message: ', message.replace("\x01", "|"), '\n ======================================================')
         return
 
     def fromApp(self, message, sessionID):
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromApp message: ', message.replace("\x01", "|"), '\n ======================================================')
         return
 
 
@@ -166,18 +173,45 @@ def new_order(
     message.setField(fix.ClOrdID(ord_id))
     message.setField(fix.Symbol(symbol))
     message.setField(fix.Side(side))
-    message.setField(fix.Price(float(price)))
+    message.setField(fix.ClientID('1')) # сделать одинаковым для всех
     if order_type.lower() == "market":
         message.setField(fix.OrdType(fix.OrdType_MARKET))
     else:
-        message.setField(fix.OrdType(fix.OrdType_LIMIT))
+        message.setField(fix.OrdType(fix.OrdType_LIMIT)) 
     message.setField(fix.HandlInst(fix.HandlInst_MANUAL_ORDER_BEST_EXECUTION))
     message.setField(fix.TransactTime())
-    message.setField(fix.OrderQty(float(quantity)))
-    message.setField(fix.Text(f"{side} {symbol} {quantity}@{price}"))
+    message.setField(fix.QuoteID('1')) #=================
 
     return message
 
+def new_quote_request(
+    sender_comp_id, target_comp_id, symbol, quantity, side
+):
+    if side.lower() == "buy":
+        side = fix.Side_BUY
+    else:
+        side = fix.Side_SELL
+
+    message = Message()
+    header = message.getHeader()
+    header.setField(fix.BeginString("FIX.4.2"))
+    header.setField(fix.SenderCompID(sender_comp_id))
+    header.setField(fix.TargetCompID(target_comp_id))
+    header.setField(fix.MsgType("R"))
+    ord_id = get_order_id(sender_comp_id, symbol)
+    message.setField(fix.ClOrdID(ord_id))
+    message.setField(fix.Symbol(symbol)) # +++++++
+    message.setField(fix.Side(side)) #+++++++++++
+    message.setField(fix.ClientID('1')) # +++++++++ сделать одинаковым для всех
+    if order_type.lower() == "market":
+        message.setField(fix.OrdType(fix.OrdType_MARKET))
+    else:
+        message.setField(fix.OrdType(fix.OrdType_LIMIT)) 
+    message.setField(fix.HandlInst(fix.HandlInst_MANUAL_ORDER_BEST_EXECUTION))
+    message.setField(fix.TransactTime())
+    message.setField(fix.QuoteID('1')) #=================
+
+    return message
 
 def replace_order(
     sender_comp_id, target_comp_id, quantity, price, orig_client_order_id

@@ -843,7 +843,6 @@
    <group name='NoRelatedSym' required='Y'>
     <field name='Symbol' required='Y' />
     <field name='SymbolSfx' required='N' />
-    <field name='ClientID' required='Y' /> <!-- add -->
     <field name='SecurityID' required='N' />
     <field name='IDSource' required='N' />
     <field name='SecurityType' required='N' />
