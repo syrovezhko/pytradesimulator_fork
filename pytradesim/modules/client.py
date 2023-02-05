@@ -37,7 +37,8 @@ class BaseApplication(fix.Application):
         return
 
     def fromApp(self, message, sessionID):
-        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromApp message: ', self.logMessage(message), '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromApp message: ', self.logMessage(message)
+        , '\n ======================================================')
         return
 
 
@@ -45,6 +46,10 @@ ORDER_TABLE = {}
 
 
 class Client(BaseApplication):
+    
+    def logMessage(self, message):
+        message = message.__str__()
+        return message.replace("\x01", "|")
 
     def set_logging(self, logger):
         self.logger = logger
@@ -62,10 +67,10 @@ class Client(BaseApplication):
         return
 
     def toApp(self, message, sessionID):
-        self.logger.debug(f"Sending {message} session {sessionID}")
+        self.logger.debug(f"Sending {self.logMessage(message)} session {sessionID}")
 
     def fromApp(self, message, sessionID):
-        self.logger.info(f"Got message {message} for {sessionID}.")
+        self.logger.info(f"Got message {self.logMessage(message)} for {sessionID}.")
         self.process(message, sessionID)
 
     def process(self, message, sessionID):
@@ -73,7 +78,7 @@ class Client(BaseApplication):
         msgtype = fix.MsgType()
         exectype = fix.ExecType()
         message.getHeader().getField(msgtype)
-        # message.getField(exectype)
+        message.getField(exectype)
 
         if msgtype.getValue() == "8":
             if exectype.getValue() == "2":
