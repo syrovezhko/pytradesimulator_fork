@@ -24,12 +24,12 @@ class BaseApplication(fix.Application):
         return
 
     def toAdmin(self, message, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', self.logMessage(message), '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', self.logMessage(message), '\n ======================================================')
         self.sessionID = sessionID
         return
 
     def fromAdmin(self, message, sessionID):
-        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromAdmin message: ', self.logMessage(message), '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromAdmin message: ', self.logMessage(message), '\n ======================================================')
         return
 
     def toApp(self, message, sessionID):
@@ -91,19 +91,39 @@ class Client(BaseApplication):
                 offer_px
             ) = self.__getQuote(message)
 
+        elif msgtype.getValue() == "8":
+            self.logger.debug("Execution Report message.")
+            self.logger.info("Execution Report received.")
+            (
+                order_id,
+                cl_ord_id,
+                symbol,
+                side,
+                client_id,
+                order_qty,
+                exec_id,
+                exec_trans_type,
+                exec_type,
+                ord_status,
+                account,
+                leaves_qty,
+                cum_qty,
+                avg_px,
+                transact_time,
+            ) = self.__getExecutionReport(message)
         # elif msgtype.getValue() == "D":
-        #     self.logger.debug("New Order message.")
-        #     self.logger.info("New Order received.")
-        #     (
-        #         quote_id,
-        #         client_id,
-        #         handl_inst,
-        #         ord_type,
-        #         transact_time,
-        #         side,
-        #         symbol,
-        #         cl_ord_id
-        #     ) =self.__getNewOrder(message)
+            self.logger.debug("New Order message.")
+            self.logger.info("New Order received.")
+            (
+                quote_id,
+                client_id,
+                handl_inst,
+                ord_type,
+                transact_time,
+                side,
+                symbol,
+                cl_ord_id
+            ) =self.__getNewOrder(message)
 
         
     def __getQuote(self, message):
@@ -122,33 +142,67 @@ class Client(BaseApplication):
         
         print('!!!!!!!!!!!!!!!!')
         print('quote_id: ', quote_id)
-        
         print('!!!!!!!!!!!!!!!!')
 
         return (quote_req_id, quote_id, symbol, offer_size, offer_px)
 
+    def __getExecutionReport(self, message):
+        self.logger.debug("accept Execution Report.")
+        order_id = fix.OrderID()
+        cl_ord_id = fix.ClOrdID()
+        symbol = fix.Symbol()
+        side = fix.Side()
+        client_id = fix.ClientID()
+        order_qty = fix.OrderQty()
+        exec_id = fix.ExecID()
+        exec_trans_type = fix.ExecTransType()
+        exec_type = fix.ExecType()
+        ord_status = fix.OrdStatus()
+        account = fix.Account()
+        leaves_qty = fix.LeavesQty()
+        cum_qty = fix.CumQty()
+        avg_px = fix.AvgPx()
+        transact_time = fix.TransactTime()
+        
+        message.getField(order_id)
+        message.getField(cl_ord_id)
+        message.getField(symbol)
+        message.getField(side)
+        message.getField(client_id)
+        message.getField(order_qty)
+        message.getField(exec_id)
+        message.getField(exec_trans_type)
+        message.getField(exec_type)
+        message.getField(ord_status)
+        message.getField(account)
+        message.getField(leaves_qty)
+        message.getField(cum_qty)
+        message.getField(avg_px)
+        message.getField(transact_time)
+
+        return (order_id, cl_ord_id, symbol, side, client_id, order_qty, exec_id, exec_trans_type, exec_type, ord_status, account, leaves_qty, cum_qty, avg_px, transact_time)
 
     # def __getNewOrder(self, message):
-    #     self.logger.debug("accept New Order message.")
-    #     quote_id = fix.QuoteID()
-    #     client_id= fix.ClientID()
-    #     handl_inst = fix.HandlInst()
-    #     ord_type = fix.OrdType()
-    #     transact_time =fix.TransactTime()
-    #     side = fix.Side()
-    #     symbol = fix.Symbol()
-    #     cl_ord_id = fix.ClOrdID()
+        self.logger.debug("accept New Order message.")
+        quote_id = fix.QuoteID()
+        client_id= fix.ClientID()
+        handl_inst = fix.HandlInst()
+        ord_type = fix.OrdType()
+        transact_time =fix.TransactTime()
+        side = fix.Side()
+        symbol = fix.Symbol()
+        cl_ord_id = fix.ClOrdID()
 
-    #     message.getField(quote_id)
-    #     message.getField(client_id)
-    #     message.getField(handl_inst)
-    #     message.getField(ord_type)
-    #     message.getField(transact_time)
-    #     message.getField(side)
-    #     message.getField(symbol)
-    #     message.getField(cl_ord_id)
+        message.getField(quote_id)
+        message.getField(client_id)
+        message.getField(handl_inst)
+        message.getField(ord_type)
+        message.getField(transact_time)
+        message.getField(side)
+        message.getField(symbol)
+        message.getField(cl_ord_id)
 
-    #     return (quote_id, client_id, handl_inst, ord_type, transact_time, side, symbol, cl_ord_id)
+        return (quote_id, client_id, handl_inst, ord_type, transact_time, side, symbol, cl_ord_id)
 
 
     def __get_attributes(self, message):
