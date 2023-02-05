@@ -7,6 +7,10 @@ ORDERS = {}
 
 
 class BaseApplication(fix.Application):
+    def logMessage(self, message):
+        message = message.__str__()
+        return message.replace("\x01", "|")
+
     def onCreate(self, sessionID):
         print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n onCreate in work')
         return
@@ -20,20 +24,20 @@ class BaseApplication(fix.Application):
         return
 
     def toAdmin(self, message, sessionID):
-        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', message, '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', self.logMessage(message), '\n ======================================================')
         self.sessionID = sessionID
         return
 
     def fromAdmin(self, message, sessionID):
-        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromAdmin message: ', message, '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromAdmin message: ', self.logMessage(message), '\n ======================================================')
         return
 
     def toApp(self, message, sessionID):
-        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toApp message: ', message, '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toApp message: ', self.logMessage(message), '\n ======================================================')
         return
 
     def fromApp(self, message, sessionID):
-        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromApp message: ', message, '\n ======================================================')
+        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromApp message: ', self.logMessage(message), '\n ======================================================')
         return
 
 
@@ -41,6 +45,7 @@ ORDER_TABLE = {}
 
 
 class Client(BaseApplication):
+
     def set_logging(self, logger):
         self.logger = logger
 
@@ -68,7 +73,7 @@ class Client(BaseApplication):
         msgtype = fix.MsgType()
         exectype = fix.ExecType()
         message.getHeader().getField(msgtype)
-        message.getField(exectype)
+        # message.getField(exectype)
 
         if msgtype.getValue() == "8":
             if exectype.getValue() == "2":
