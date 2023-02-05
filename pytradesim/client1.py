@@ -77,6 +77,7 @@ def main(client_config="configs/client1.cfg", debug=None):
                 quantity = input("Quantity: ")
                 side = input("Side: ")
                 order_type = input("Type: ")
+                quote_id = input("Quote ID: ")
 
                 message = new_order(
                     sender_compid,
@@ -86,6 +87,7 @@ def main(client_config="configs/client1.cfg", debug=None):
                     price,
                     side,
                     order_type,
+                    quote_id
                 )
 
                 print("Sending new order...")

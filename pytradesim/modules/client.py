@@ -24,12 +24,12 @@ class BaseApplication(fix.Application):
         return
 
     def toAdmin(self, message, sessionID):
-        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', self.logMessage(message), '\n ======================================================')
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n toAdmin message: ', self.logMessage(message), '\n ======================================================')
         self.sessionID = sessionID
         return
 
     def fromAdmin(self, message, sessionID):
-        print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromAdmin message: ', self.logMessage(message), '\n ======================================================')
+        # print ('\n--------------------------_______________--------------------- \n ./pytradesimulator/pytradesim/modules/client.py \n fromAdmin message: ', self.logMessage(message), '\n ======================================================')
         return
 
     def toApp(self, message, sessionID):
@@ -46,7 +46,7 @@ ORDER_TABLE = {}
 
 
 class Client(BaseApplication):
-    
+
     def logMessage(self, message):
         message = message.__str__()
         return message.replace("\x01", "|")
@@ -76,82 +76,80 @@ class Client(BaseApplication):
     def process(self, message, sessionID):
         self.logger.debug("Processing message.")
         msgtype = fix.MsgType()
-        exectype = fix.ExecType()
+        # exectype = fix.ExecType()
         message.getHeader().getField(msgtype)
-        message.getField(exectype)
-
-        if msgtype.getValue() == "8":
-            if exectype.getValue() == "2":
-                self.logger.info("Trade received.")
-                (
-                    symbol,
-                    price,
-                    quantity,
-                    side,
-                    client_order_id,
-                    trade_exec_id,
-                    order_status,
-                ) = self.__get_attributes(message)
-                self.logger.info(
-                    f"Trade: {trade_exec_id}, {client_order_id} {symbol}"
-                    f" {quantity}@{price} {side}"
-                )
-            elif exectype.getValue() == "0":
-                self.logger.info("Order placed successfully.")
-                (
-                    symbol,
-                    price,
-                    quantity,
-                    side,
-                    client_order_id,
-                    exec_id,
-                    order_status,
-                ) = self.__get_attributes(message)
-
-                ORDERS[client_order_id.getValue()] = [symbol, price, quantity, side]
-
-                self.logger.info(
-                    f"Order: {exec_id}, {client_order_id} {symbol}"
-                    f" {quantity}@{price} {side}"
-                )
-            elif exectype.getValue() == "5":
-                self.logger.info("Order replaced successfully.")
-                (
-                    symbol,
-                    price,
-                    quantity,
-                    side,
-                    client_order_id,
-                    exec_id,
-                    order_status,
-                ) = self.__get_attributes(message)
-
-                ORDERS[client_order_id.getValue()] = [symbol, price, quantity, side]
-
-                self.logger.info(
-                    f"Order: {exec_id}, {client_order_id} {symbol}"
-                    f" {quantity}@{price} {side}"
-                )
+        # message.getField(exectype)
         
-    def getQuote(self, message, sessionID):
-        self.logger.debug("getQuote message.")
+        if msgtype.getValue() == "S":
+            self.logger.debug("Quote message.")
+            self.logger.info("Quote received.")
+            (
+                quote_req_id,
+                quote_id,
+                symbol,
+                offer_size,
+                offer_px
+            ) = self.__getQuote(message)
+
+        # elif msgtype.getValue() == "D":
+        #     self.logger.debug("New Order message.")
+        #     self.logger.info("New Order received.")
+        #     (
+        #         quote_id,
+        #         client_id,
+        #         handl_inst,
+        #         ord_type,
+        #         transact_time,
+        #         side,
+        #         symbol,
+        #         cl_ord_id
+        #     ) =self.__getNewOrder(message)
+
+        
+    def __getQuote(self, message):
+        self.logger.debug("accept Quote message.")
         quote_req_id = fix.QuoteReqID()
         quote_id = fix.QuoteID()
         symbol = fix.Symbol()
         offer_size = fix.OfferSize()
         offer_px = fix.OfferPx()
-        id_source = fix.IDSource()
-        security_id = fix.SecurityID()
 
         message.getField(quote_req_id)
         message.getField(quote_id)
         message.getField(symbol)
         message.getField(offer_size)
         message.getField(offer_px)
-        message.getField(id_source)
-        message.getField(security_id)
+        
+        print('!!!!!!!!!!!!!!!!')
+        print('quote_id: ', quote_id)
+        
+        print('!!!!!!!!!!!!!!!!')
 
-        return (quote_req_id, quote_id, symbol, offer_size, offer_px, id_source, security_id)
+        return (quote_req_id, quote_id, symbol, offer_size, offer_px)
+
+
+    # def __getNewOrder(self, message):
+    #     self.logger.debug("accept New Order message.")
+    #     quote_id = fix.QuoteID()
+    #     client_id= fix.ClientID()
+    #     handl_inst = fix.HandlInst()
+    #     ord_type = fix.OrdType()
+    #     transact_time =fix.TransactTime()
+    #     side = fix.Side()
+    #     symbol = fix.Symbol()
+    #     cl_ord_id = fix.ClOrdID()
+
+    #     message.getField(quote_id)
+    #     message.getField(client_id)
+    #     message.getField(handl_inst)
+    #     message.getField(ord_type)
+    #     message.getField(transact_time)
+    #     message.getField(side)
+    #     message.getField(symbol)
+    #     message.getField(cl_ord_id)
+
+    #     return (quote_id, client_id, handl_inst, ord_type, transact_time, side, symbol, cl_ord_id)
+
 
     def __get_attributes(self, message):
         price = fix.LastPx()
@@ -184,6 +182,7 @@ def get_order_id(sender_comp_id, symbol):
 
     return order_id
 
+# _, quote_id, _, _, _ = Client(BaseApplication).self.__getQuote()
 
 def new_order(
     sender_comp_id, target_comp_id, symbol, quantity, price, side, order_type, quote_id
@@ -194,6 +193,9 @@ def new_order(
         side = fix.Side_SELL
 
     message = Message()
+    # app = Client()
+    # quote_data = app.__getQuote(message)
+    # quote_id = quote_data[1]
     header = message.getHeader()
     header.setField(fix.BeginString("FIX.4.2"))
     header.setField(fix.SenderCompID(sender_comp_id))
@@ -211,6 +213,7 @@ def new_order(
     message.setField(fix.HandlInst(fix.HandlInst_MANUAL_ORDER_BEST_EXECUTION))
     message.setField(fix.TransactTime())
     message.setField(fix.QuoteID(quote_id)) #=================
+    
 
     return message
 
