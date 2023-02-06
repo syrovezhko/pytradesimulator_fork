@@ -5,8 +5,13 @@ import logging
 from time import sleep
 
 import click
-from modules.client import (Client, delete_order, fix, new_order,
-                            replace_order, send, new_quote_request)
+from modules.client import (Client,
+                            fix,
+                            new_order,
+                            send, 
+                            new_quote_request,
+                            new_cancel
+                        )
 from modules.utils import setup_logging
 
 
@@ -63,64 +68,13 @@ def main(client_config="configs/client1.cfg", debug=None):
             choice = int(
                 input(
                     "Enter choice :- "
-                    "\n1. New order"
-                    "\n2. Replace order"
-                    "\n3. Delete order"
-                    "\n4. New quote request"
+                    "\n1. New quote request"
+                    "\n2. New order"
+                    "\n3. Cancel order"
                     "\n> "
                 )
             )
             if choice == 1:
-                print("Enter order :- ")
-                symbol = input("Symbol: ")
-                price = input("Price: ")
-                quantity = input("Quantity: ")
-                side = input("Side: ")
-                order_type = input("Type: ")
-                quote_id = input("Quote ID: ")
-
-                message = new_order(
-                    sender_compid,
-                    target_compid,
-                    symbol,
-                    quantity,
-                    price,
-                    side,
-                    order_type,
-                    quote_id
-                )
-
-                print("Sending new order...")
-                print(message)
-                print('=======================')
-                send(message)
-            elif choice == 2:
-                order_id = input("Enter OrderID: ")
-                price = input("Price: ")
-                quantity = input("Quantity: ")
-
-                message = replace_order(
-                    sender_compid,
-                    target_compid,
-                    quantity,
-                    price,
-                    order_id
-                )
-
-                print("Sending replace order...")
-                send(message)
-            elif choice == 3:
-                order_id = input("Enter OrderID: ")
-
-                message = delete_order(
-                    sender_compid,
-                    target_compid,
-                    order_id
-                )
-
-                print("Sending delete order...")
-                send(message)
-            elif choice == 4:
                 print("Enter quote request:- ")
                 symbol = input("Symbol: ")
                 quantity = input("Quantity: ")
@@ -138,6 +92,47 @@ def main(client_config="configs/client1.cfg", debug=None):
                 print(message)
                 print('!!!=======================!!!')
                 send(message)
+
+            elif choice == 2:
+                print("Enter order :- ")
+                symbol = input("Symbol: ")
+                price = input("Price: ")
+                quantity = input("Quantity: ")
+                side = input("Side: ")
+                order_type = input("Type: ")
+
+                message = new_order(
+                    sender_compid,
+                    target_compid,
+                    symbol,
+                    quantity,
+                    price,
+                    side,
+                    order_type,
+                )
+
+                print("Sending new order...")
+                print(message)
+                print('=======================')
+                send(message)
+
+            elif choice == 3:
+                print("The order request: ")
+                print(message, '\nhas been sent.')
+                decision = input("Do you want to cancel?: (y/n)")
+
+                if decision == 'y':
+                    message = new_cancel(
+                        sender_compid,
+                        target_compid
+                    )
+
+                    print("Sending new order...")
+                    print(message)
+                    print('=======================')
+                    send(message)
+                else:
+                    print("\nYou didn't cancel the order\n")
 
         except KeyboardInterrupt:
             initiator.stop()

@@ -39,4 +39,9 @@ def setup_logging(log_path, file_name):
 class Message(fix.Message):
     def __str__(self):
         message = super().__str__()
+        # print(
+        #     '\n!!!!!!!!!!!!!\n utils \n',
+        #     message.replace("\x01", "|"),
+        #     '\n!!!!!!!!!!!!!!!!!!!!\n'
+        # )
         return message.replace("\x01", "|")
